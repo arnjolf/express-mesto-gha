@@ -18,12 +18,14 @@ module.exports.getAllCards = router.get('/', (req, res) => {
 
 module.exports.deleteCard = router.delete('/:cardId', (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((card) => {
+      if (!card) {
         res.status(404).send({ message: 'Карточка не найдена' });
         return;
       }
+      res.send({ data: card });
+    })
+    .catch(() => {
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 });
@@ -49,12 +51,14 @@ module.exports.likeCard = router.put('/:cardId/likes', (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true }
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((card) => {
+      if (!card) {
         res.status(404).send({ message: 'Карточка не найдена' });
         return;
       }
+      res.send({ data: card });
+    })
+    .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
@@ -69,12 +73,14 @@ module.exports.dislikeCard = router.delete('/:cardId/likes', (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((card) => {
+      if (!card) {
         res.status(404).send({ message: 'Карточка не найдена' });
         return;
       }
+      res.send({ data: card });
+    })
+    .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные' });
         return;

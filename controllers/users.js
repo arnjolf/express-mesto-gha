@@ -32,12 +32,14 @@ module.exports.getAllUsers = router.get('/', (req, res) => {
 
 module.exports.getUserById = router.get('/:id', (req, res) => {
   User.findById(req.params.id)
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
+      res.send({ data: user });
+    })
+    .catch(() => {
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 });
@@ -48,14 +50,16 @@ module.exports.updateUser = router.patch('/me', (req, res) => {
   const id = req.user._id;
 
   User.findByIdAndUpdate(id, { name: newName, about: newAbout }, { new: true })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
@@ -67,12 +71,14 @@ module.exports.updateUserAvatar = router.patch('/me/avatar', (req, res) => {
   const id = req.user._id;
 
   User.findByIdAndUpdate(id, { avatar: newAvatar }, { new: true })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
+      res.send({ data: user });
+    })
+    .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
