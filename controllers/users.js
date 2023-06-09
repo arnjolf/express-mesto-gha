@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 const router = require('express').Router(); // создали роутер
 const mongoose = require('mongoose');
 const User = require('../models/user');
