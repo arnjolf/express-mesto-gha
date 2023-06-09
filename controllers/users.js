@@ -1,10 +1,9 @@
 /* eslint-disable comma-dangle */
-const router = require('express').Router(); // создали роутер
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const { ERROR_BADREQUEST, ERROR_NOTFOUND, ERROR_SERVER } = require('./errors');
 
-module.exports.createUser = router.post('/', (req, res) => {
+module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
@@ -19,24 +18,17 @@ module.exports.createUser = router.post('/', (req, res) => {
 
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.getAllUsers = router.get('/', (req, res) => {
+module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res
-          .status(ERROR_BADREQUEST)
-          .send({ message: 'Переданы некорректные данные' });
-        return;
-      }
-
+    .catch(() => {
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.getUserById = router.get('/:id', (req, res) => {
+module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
@@ -54,9 +46,9 @@ module.exports.getUserById = router.get('/:id', (req, res) => {
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.updateUser = router.patch('/me', (req, res) => {
+module.exports.updateUser = (req, res) => {
   const newName = req.body.name;
   const newAbout = req.body.about;
   const id = req.user._id;
@@ -82,9 +74,9 @@ module.exports.updateUser = router.patch('/me', (req, res) => {
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.updateUserAvatar = router.patch('/me/avatar', (req, res) => {
+module.exports.updateUserAvatar = (req, res) => {
   const newAvatar = req.body.avatar;
   const id = req.user._id;
 
@@ -109,4 +101,4 @@ module.exports.updateUserAvatar = router.patch('/me/avatar', (req, res) => {
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};

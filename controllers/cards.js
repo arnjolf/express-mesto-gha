@@ -1,18 +1,17 @@
 /* eslint-disable comma-dangle */
 const mongoose = require('mongoose');
-const router = require('express').Router();
 const Card = require('../models/card');
 const { ERROR_BADREQUEST, ERROR_NOTFOUND, ERROR_SERVER } = require('./errors');
 
-module.exports.getAllCards = router.get('/', (req, res) => {
+module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch(() => {
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.deleteCard = router.delete('/:cardId', (req, res) => {
+module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
@@ -24,12 +23,13 @@ module.exports.deleteCard = router.delete('/:cardId', (req, res) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(ERROR_BADREQUEST).send({ message: 'Неверный id карточки' });
+        return;
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.createCard = router.post('/', (req, res) => {
+module.exports.createCard = (req, res) => {
   const owner = req.user._id;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
@@ -44,9 +44,9 @@ module.exports.createCard = router.post('/', (req, res) => {
 
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.likeCard = router.put('/:cardId/likes', (req, res) => {
+module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -66,9 +66,9 @@ module.exports.likeCard = router.put('/:cardId/likes', (req, res) => {
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
 
-module.exports.dislikeCard = router.delete('/:cardId/likes', (req, res) => {
+module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -88,4 +88,4 @@ module.exports.dislikeCard = router.delete('/:cardId/likes', (req, res) => {
       }
       res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
-});
+};
