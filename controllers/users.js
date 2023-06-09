@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 const router = require('express').Router(); // создали роутер
 const mongoose = require('mongoose');
 const User = require('../models/user');
@@ -31,7 +32,7 @@ module.exports.getAllUsers = router.get('/', (req, res) => {
 });
 
 module.exports.getUserById = router.get('/:id', (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.id, { runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
@@ -39,7 +40,11 @@ module.exports.getUserById = router.get('/:id', (req, res) => {
       }
       res.send({ data: user });
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
       res.status(500).send({ message: 'Произошла ошибка' });
     });
 });
@@ -49,7 +54,11 @@ module.exports.updateUser = router.patch('/me', (req, res) => {
   const newAbout = req.body.about;
   const id = req.user._id;
 
-  User.findByIdAndUpdate(id, { name: newName, about: newAbout }, { new: true })
+  User.findByIdAndUpdate(
+    id,
+    { name: newName, about: newAbout },
+    { new: true, runValidators: true }
+  )
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
@@ -58,8 +67,8 @@ module.exports.updateUser = router.patch('/me', (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Пользователь не найден' });
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
@@ -70,7 +79,11 @@ module.exports.updateUserAvatar = router.patch('/me/avatar', (req, res) => {
   const newAvatar = req.body.avatar;
   const id = req.user._id;
 
-  User.findByIdAndUpdate(id, { avatar: newAvatar }, { new: true })
+  User.findByIdAndUpdate(
+    id,
+    { avatar: newAvatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });

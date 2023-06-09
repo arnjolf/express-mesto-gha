@@ -17,7 +17,7 @@ module.exports.getAllCards = router.get('/', (req, res) => {
 });
 
 module.exports.deleteCard = router.delete('/:cardId', (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findByIdAndRemove(req.params.cardId, { runValidators: true })
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Карточка не найдена' });
@@ -49,7 +49,7 @@ module.exports.likeCard = router.put('/:cardId/likes', (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true, runValidators: true }
   )
     .then((card) => {
       if (!card) {
@@ -71,7 +71,7 @@ module.exports.dislikeCard = router.delete('/:cardId/likes', (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true, runValidators: true }
   )
     .then((card) => {
       if (!card) {
