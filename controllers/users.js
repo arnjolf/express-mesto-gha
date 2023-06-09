@@ -1,4 +1,3 @@
-/* eslint-disable comma-dangle */
 const router = require('express').Router(); // создали роутер
 const mongoose = require('mongoose');
 const User = require('../models/user');
@@ -32,17 +31,17 @@ module.exports.getAllUsers = router.get('/', (req, res) => {
 });
 
 module.exports.getUserById = router.get('/:id', (req, res) => {
-  User.findById(req.params.id, { runValidators: true })
+  User.findById(req.params.id)
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
         return;
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+      if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: 'Переданы некорректный id' });
         return;
       }
       res.status(500).send({ message: 'Произошла ошибка' });
