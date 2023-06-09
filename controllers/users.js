@@ -2,6 +2,7 @@
 const router = require('express').Router(); // создали роутер
 const mongoose = require('mongoose');
 const User = require('../models/user');
+const { ERROR_BADREQUEST, ERROR_NOTFOUND, ERROR_SERVER } = require('./errors');
 
 module.exports.createUser = router.post('/', (req, res) => {
   const { name, about, avatar } = req.body;
@@ -10,11 +11,13 @@ module.exports.createUser = router.post('/', (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(ERROR_BADREQUEST)
+          .send({ message: 'Переданы некорректные данные' });
         return;
       }
 
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
 
@@ -23,11 +26,13 @@ module.exports.getAllUsers = router.get('/', (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(ERROR_BADREQUEST)
+          .send({ message: 'Переданы некорректные данные' });
         return;
       }
 
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
 
@@ -35,17 +40,19 @@ module.exports.getUserById = router.get('/:id', (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(ERROR_NOTFOUND).send({ message: 'Пользователь не найден' });
         return;
       }
       res.send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректный id' });
+        res
+          .status(ERROR_BADREQUEST)
+          .send({ message: 'Переданы некорректный id' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
 
@@ -61,17 +68,19 @@ module.exports.updateUser = router.patch('/me', (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(ERROR_NOTFOUND).send({ message: 'Пользователь не найден' });
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(ERROR_BADREQUEST)
+          .send({ message: 'Переданы некорректные данные' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
 
@@ -86,16 +95,18 @@ module.exports.updateUserAvatar = router.patch('/me/avatar', (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(ERROR_NOTFOUND).send({ message: 'Пользователь не найден' });
         return;
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res
+          .status(ERROR_BADREQUEST)
+          .send({ message: 'Переданы некорректные данные' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(ERROR_SERVER).send({ message: 'Произошла ошибка' });
     });
 });
