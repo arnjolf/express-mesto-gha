@@ -1,8 +1,8 @@
-/* eslint-disable no-useless-escape */
 /* eslint-disable comma-dangle */
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const isEmail = require('validator/lib/isEmail');
+const isUrl = require('validator/lib/isURL');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const userSchema = new mongoose.Schema({
@@ -23,11 +23,8 @@ const userSchema = new mongoose.Schema({
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator(v) {
-        return /^((http|https):\/\/)?(www\.)?([A-Za-zА0-9]{1}[A-Za-zА0-9\-]*\.?)*\.{1}[A-Za-zА0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\/])*)?/.test(
-          v
-        );
-      },
+      validator: (v) => isUrl(v),
+      message: 'Неправильный адрес URL',
     },
   },
   email: {

@@ -35,7 +35,7 @@ module.exports.getAllUsers = (req, res, next) => {
 };
 
 module.exports.getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(req.params.userId === 'me' ? req.user._id : req.params.userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -106,14 +106,6 @@ module.exports.login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-module.exports.getUserInfo = (req, res, next) => {
-  User.find({})
-    .then((user) => res.send({ data: user }))
     .catch((err) => {
       next(err);
     });
