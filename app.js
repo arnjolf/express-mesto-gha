@@ -1,8 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { errors } = require('celebrate');
 const router = require('./routes/index');
+
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errHandler = require('./middlewares/centralizedError');
@@ -10,18 +12,27 @@ const {
   createUserValidate,
   loginValidate,
 } = require('./middlewares/validator');
+const NotFoundError = require('./errors/NotFoundError');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const app = express();
 app.use(express.json());
 app.use(helmet());
+app.use(limiter);
 app.post('/signin', loginValidate, login);
 app.post('/signup', createUserValidate, createUser);
 
 app.use(auth);
 
 app.use('/', router);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Неправильный адрес' });
+app.use(() => {
+  throw new NotFoundError('Неправильный адрес');
 });
 app.use(errors());
 app.use(errHandler);

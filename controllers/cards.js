@@ -29,8 +29,9 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Неверный id карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -42,8 +43,9 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -62,8 +64,9 @@ module.exports.likeCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Неверный id карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -82,7 +85,8 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         next(new BadRequestError('Неверный id карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
