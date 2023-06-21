@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
@@ -11,12 +12,19 @@ module.exports.getAllCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
       }
-      res.send({ data: card });
+      if (card.owner.valueOf() !== req.user._id) {
+        throw new ForbiddenError('У вас нет прав доступа');
+      }
+    })
+    .then(() => {
+      Card.findByIdAndRemove(req.params.cardId).then((card) => {
+        res.send({ data: card });
+      });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
