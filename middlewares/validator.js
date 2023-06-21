@@ -29,7 +29,7 @@ const loginValidate = celebrate({
 
 const getByIdValidate = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().length(24),
+    userId: Joi.string().hex().length(24).allow('me'),
   }),
 });
 
@@ -49,7 +49,7 @@ const updateUserAvatarValidate = celebrate({
 const createCardValidate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().custom(validatorUrl),
+    link: Joi.string().custom(validatorUrl).required(),
   }),
 });
 
